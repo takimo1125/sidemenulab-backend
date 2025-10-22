@@ -2,9 +2,13 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
-	"net/http"
+	deliveryhttp "sidemenulab-backend/internal/delivery/http"
+	"sidemenulab-backend/internal/domain/entity"
+	"sidemenulab-backend/internal/infrastructure/database"
+	"sidemenulab-backend/internal/usecase/interactor"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
@@ -15,7 +19,7 @@ func main() {
 	// PostgreSQLデータベース接続
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "host=postgres user=postgres password= dbname=sidemenulab port=5432 sslmode=disable TimeZone=Asia/Tokyo"
+		dsn = "host=postgres user=postgres password=password dbname=sidemenulab port=5432 sslmode=disable TimeZone=Asia/Tokyo"
 	}
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -29,8 +33,35 @@ func main() {
 	}
 	defer sqlDB.Close()
 
+	// データベースマイグレーション
+	if err := db.AutoMigrate(&entity.User{}); err != nil {
+		log.Fatal("データベースマイグレーションに失敗しました:", err)
+	}
+
+	// 依存性注入
+	userRepo := database.NewUserRepository(db)
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "your-secret-key" // 本番環境では必ず環境変数で設定してください
+	}
+	authUseCase := interactor.NewAuthInteractor(userRepo, jwtSecret)
+
 	// Ginエンジンの初期化
 	engine := gin.Default()
+	
+	// CORS設定
+	engine.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		
+		c.Next()
+	})
 	
 	// ヘルスチェックエンドポイント
 	engine.GET("/", func(c *gin.Context) {
@@ -54,6 +85,9 @@ func main() {
 			"database": "connected",
 		})
 	})
+
+	// ルート設定
+	deliveryhttp.SetupRoutes(engine, authUseCase)
 
 	// サーバー起動
 	port := os.Getenv("PORT")
