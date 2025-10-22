@@ -34,17 +34,28 @@ func main() {
 	defer sqlDB.Close()
 
 	// データベースマイグレーション
-	if err := db.AutoMigrate(&entity.User{}); err != nil {
+	if err := db.AutoMigrate(
+		&entity.User{},
+		&entity.Store{},
+		&entity.SideMenu{},
+		&entity.SideMenuReview{},
+		&entity.SideMenuReviewImage{},
+		&entity.SideMenuReviewLike{},
+	); err != nil {
 		log.Fatal("データベースマイグレーションに失敗しました:", err)
 	}
 
 	// 依存性注入
 	userRepo := database.NewUserRepository(db)
+	storeRepo := database.NewStoreRepository(db)
+	sideMenuRepo := database.NewSideMenuRepository(db)
+	
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
 		jwtSecret = "your-secret-key" // 本番環境では必ず環境変数で設定してください
 	}
 	authUseCase := interactor.NewAuthInteractor(userRepo, jwtSecret)
+	sideMenuUseCase := interactor.NewSideMenuInteractor(storeRepo, sideMenuRepo)
 
 	// Ginエンジンの初期化
 	engine := gin.Default()
@@ -87,7 +98,7 @@ func main() {
 	})
 
 	// ルート設定
-	deliveryhttp.SetupRoutes(engine, authUseCase)
+	deliveryhttp.SetupRoutes(engine, authUseCase, sideMenuUseCase)
 
 	// サーバー起動
 	port := os.Getenv("PORT")
