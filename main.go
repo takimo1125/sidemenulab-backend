@@ -100,7 +100,7 @@ func main() {
 	})
 
 	// ルート設定
-	deliveryhttp.SetupRoutes(engine, authUseCase, sideMenuUseCase, reviewUseCase)
+	deliveryhttp.SetupRoutes(engine, authUseCase, sideMenuUseCase, reviewUseCase, jwtSecret)
 
 	// サーバー起動
 	port := os.Getenv("PORT")

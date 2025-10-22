@@ -28,7 +28,14 @@ func (h *ReviewHandler) CreateReview(c *gin.Context) {
 		return
 	}
 
-	review, err := h.reviewUseCase.CreateReview(&req)
+	// 認証されたユーザーIDを取得
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証情報が取得できません"})
+		return
+	}
+
+	review, err := h.reviewUseCase.CreateReviewWithUserID(&req, userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -137,11 +144,14 @@ func (h *ReviewHandler) CreateReviewLike(c *gin.Context) {
 		return
 	}
 
-	// TODO: ユーザー認証からuserIDを取得する必要があります
-	// 現在は仮でuserID=1を使用
-	userID := uint(1)
+	// 認証されたユーザーIDを取得
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証情報が取得できません"})
+		return
+	}
 
-	like, err := h.reviewUseCase.CreateReviewLike(uint(id), userID)
+	like, err := h.reviewUseCase.CreateReviewLike(uint(id), userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -159,11 +169,14 @@ func (h *ReviewHandler) DeleteReviewLike(c *gin.Context) {
 		return
 	}
 
-	// TODO: ユーザー認証からuserIDを取得する必要があります
-	// 現在は仮でuserID=1を使用
-	userID := uint(1)
+	// 認証されたユーザーIDを取得
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証情報が取得できません"})
+		return
+	}
 
-	if err := h.reviewUseCase.DeleteReviewLike(uint(id), userID); err != nil {
+	if err := h.reviewUseCase.DeleteReviewLike(uint(id), userID.(uint)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
