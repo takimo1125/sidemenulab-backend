@@ -45,3 +45,9 @@ type CreateReviewRequest struct {
 	Title      string `json:"title"`
 	Comment    string `json:"comment"`
 }
+
+type CreateReviewImageRequest struct {
+	ReviewID   uint   `json:"review_id" binding:"required"`
+	ImageURL   string `json:"image_url" binding:"required"`
+	ImageOrder int    `json:"image_order"`
+}
