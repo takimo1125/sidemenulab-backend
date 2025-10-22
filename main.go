@@ -49,6 +49,7 @@ func main() {
 	userRepo := database.NewUserRepository(db)
 	storeRepo := database.NewStoreRepository(db)
 	sideMenuRepo := database.NewSideMenuRepository(db)
+	reviewRepo := database.NewReviewRepository(db)
 	
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
@@ -56,6 +57,7 @@ func main() {
 	}
 	authUseCase := interactor.NewAuthInteractor(userRepo, jwtSecret)
 	sideMenuUseCase := interactor.NewSideMenuInteractor(storeRepo, sideMenuRepo)
+	reviewUseCase := interactor.NewReviewInteractor(reviewRepo)
 
 	// Ginエンジンの初期化
 	engine := gin.Default()
@@ -98,7 +100,7 @@ func main() {
 	})
 
 	// ルート設定
-	deliveryhttp.SetupRoutes(engine, authUseCase, sideMenuUseCase)
+	deliveryhttp.SetupRoutes(engine, authUseCase, sideMenuUseCase, reviewUseCase)
 
 	// サーバー起動
 	port := os.Getenv("PORT")

@@ -43,6 +43,14 @@ func (r *ReviewRepository) GetReviewsByUserID(userID uint) ([]*entity.SideMenuRe
 	return reviews, nil
 }
 
+func (r *ReviewRepository) GetAllReviews() ([]*entity.SideMenuReview, error) {
+	var reviews []*entity.SideMenuReview
+	if err := r.db.Preload("SideMenu").Preload("User").Find(&reviews).Error; err != nil {
+		return nil, err
+	}
+	return reviews, nil
+}
+
 func (r *ReviewRepository) UpdateReview(review *entity.SideMenuReview) error {
 	return r.db.Save(review).Error
 }
