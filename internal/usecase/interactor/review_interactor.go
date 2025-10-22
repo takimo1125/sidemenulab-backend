@@ -45,6 +45,29 @@ func (i *ReviewInteractor) CreateReview(req *entity.CreateReviewRequest) (*entit
 	return createdReview, nil
 }
 
+func (i *ReviewInteractor) CreateReviewWithUserID(req *entity.CreateReviewRequest, userID uint) (*entity.SideMenuReview, error) {
+	review := &entity.SideMenuReview{
+		SideMenuID: req.SideMenuID,
+		UserID:     userID,
+		Rating:     req.Rating,
+		Title:      req.Title,
+		Comment:    req.Comment,
+		IsVerified: false, // デフォルトで未確認
+	}
+
+	if err := i.reviewRepo.CreateReview(review); err != nil {
+		return nil, fmt.Errorf("レビューの作成に失敗しました: %w", err)
+	}
+
+	// 作成されたレビューを関連データと一緒に取得
+	createdReview, err := i.reviewRepo.GetReviewByID(review.ID)
+	if err != nil {
+		return nil, fmt.Errorf("作成されたレビューの取得に失敗しました: %w", err)
+	}
+
+	return createdReview, nil
+}
+
 func (i *ReviewInteractor) GetReviewByID(id uint) (*entity.SideMenuReview, error) {
 	review, err := i.reviewRepo.GetReviewByID(id)
 	if err != nil {

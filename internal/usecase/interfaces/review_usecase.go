@@ -4,6 +4,7 @@ import "sidemenulab-backend/internal/domain/entity"
 
 type ReviewUseCase interface {
 	CreateReview(req *entity.CreateReviewRequest) (*entity.SideMenuReview, error)
+	CreateReviewWithUserID(req *entity.CreateReviewRequest, userID uint) (*entity.SideMenuReview, error)
 	GetReviewByID(id uint) (*entity.SideMenuReview, error)
 	GetReviewsBySideMenuID(sideMenuID uint) ([]*entity.SideMenuReview, error)
 	GetReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error)
