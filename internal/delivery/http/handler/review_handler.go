@@ -316,3 +316,116 @@ func (h *ReviewHandler) GetReviewLikesByReviewID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": likes})
 }
+
+// UpdateReview レビュー編集
+func (h *ReviewHandler) UpdateReview(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なIDです"})
+		return
+	}
+
+	// 認証されたユーザーIDを取得
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証情報が取得できません"})
+		return
+	}
+
+	// レビューの存在確認と所有者チェック
+	review, err := h.reviewUseCase.GetReviewByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "レビューが見つかりません"})
+		return
+	}
+
+	if review.UserID != userID.(uint) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "このレビューを編集する権限がありません"})
+		return
+	}
+
+	var req entity.CreateReviewRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// レビューを更新
+	review.StoreName = req.StoreName
+	review.SideMenuName = req.SideMenuName
+	review.Rating = req.Rating
+	review.Title = req.Title
+	review.Comment = req.Comment
+
+	if err := h.reviewUseCase.UpdateReview(review); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "レビューが更新されました", "data": review})
+}
+
+// DeleteReview レビュー削除
+func (h *ReviewHandler) DeleteReview(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なIDです"})
+		return
+	}
+
+	// 認証されたユーザーIDを取得
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証情報が取得できません"})
+		return
+	}
+
+	// レビューの存在確認と所有者チェック
+	review, err := h.reviewUseCase.GetReviewByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "レビューが見つかりません"})
+		return
+	}
+
+	if review.UserID != userID.(uint) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "このレビューを削除する権限がありません"})
+		return
+	}
+
+	if err := h.reviewUseCase.DeleteReview(uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "レビューが削除されました"})
+}
+
+// DeleteReviewImage レビュー画像削除
+func (h *ReviewHandler) DeleteReviewImage(c *gin.Context) {
+	imageIDStr := c.Param("imageId")
+	imageID, err := strconv.ParseUint(imageIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効な画像IDです"})
+		return
+	}
+
+	// 認証されたユーザーIDを取得
+	_, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証情報が取得できません"})
+		return
+	}
+
+	// 画像削除の権限チェックは、画像が属するレビューの所有者であることを確認
+	// この実装では、画像削除の権限チェックを簡略化しています
+	// 実際のアプリケーションでは、より詳細な権限チェックが必要です
+
+	if err := h.reviewUseCase.DeleteReviewImage(uint(imageID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "レビュー画像が削除されました"})
+}

@@ -132,6 +132,27 @@ func (i *ReviewInteractor) GetReviewImagesByReviewID(reviewID uint) ([]*entity.S
 	return images, nil
 }
 
+func (i *ReviewInteractor) UpdateReview(review *entity.SideMenuReview) error {
+	if err := i.reviewRepo.UpdateReview(review); err != nil {
+		return fmt.Errorf("レビューの更新に失敗しました: %w", err)
+	}
+	return nil
+}
+
+func (i *ReviewInteractor) DeleteReview(id uint) error {
+	if err := i.reviewRepo.DeleteReview(id); err != nil {
+		return fmt.Errorf("レビューの削除に失敗しました: %w", err)
+	}
+	return nil
+}
+
+func (i *ReviewInteractor) DeleteReviewImage(imageID uint) error {
+	if err := i.reviewRepo.DeleteReviewImage(imageID); err != nil {
+		return fmt.Errorf("レビュー画像の削除に失敗しました: %w", err)
+	}
+	return nil
+}
+
 func (i *ReviewInteractor) CreateReviewLike(reviewID uint, userID uint) (*entity.SideMenuReviewLike, error) {
 	like := &entity.SideMenuReviewLike{
 		ReviewID: reviewID,
