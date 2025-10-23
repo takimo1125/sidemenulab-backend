@@ -24,7 +24,15 @@ func NewReviewCommentHandler(reviewCommentUseCase interfaces.ReviewCommentUseCas
 func (h *ReviewCommentHandler) CreateReviewComment(c *gin.Context) {
 	var req entity.CreateReviewCommentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// より詳細なエラーメッセージを返す
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "リクエストデータが無効です",
+			"details": err.Error(),
+			"received_data": gin.H{
+				"review_id": req.ReviewID,
+				"comment": req.Comment,
+			},
+		})
 		return
 	}
 
