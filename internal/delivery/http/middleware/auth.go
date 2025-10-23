@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -64,6 +65,9 @@ func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
 				c.Abort()
 				return
 			}
+
+			// デバッグログ
+			fmt.Printf("JWT認証成功 - UserID: %d, Email: %s\n", uint(userID), email)
 
 			// コンテキストにユーザー情報を設定
 			c.Set("user_id", uint(userID))

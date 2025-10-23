@@ -16,6 +16,7 @@ type SideMenuReview struct {
 	Title       string         `json:"title"`
 	Comment     string         `json:"comment"`
 	IsVerified  bool           `gorm:"default:false" json:"is_verified"`
+	Images      []SideMenuReviewImage `gorm:"foreignKey:ReviewID" json:"images"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`

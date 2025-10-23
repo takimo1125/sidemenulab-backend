@@ -7,19 +7,26 @@ import (
 
 	deliveryhttp "sidemenulab-backend/internal/delivery/http"
 	"sidemenulab-backend/internal/domain/entity"
+	"sidemenulab-backend/internal/infrastructure/cloudinary"
 	"sidemenulab-backend/internal/infrastructure/database"
 	"sidemenulab-backend/internal/usecase/interactor"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func main() {
+	// .envファイルを読み込み
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using system environment variables")
+	}
+
 	// PostgreSQLデータベース接続
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "host=postgres user=postgres password=password dbname=sidemenulab port=5432 sslmode=disable TimeZone=Asia/Tokyo"
+		dsn = "host=localhost user=postgres password=password dbname=sidemenulab port=5432 sslmode=disable TimeZone=Asia/Tokyo"
 	}
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -67,8 +74,35 @@ func main() {
 	reviewUseCase := interactor.NewReviewInteractor(reviewRepo)
 	reviewCommentUseCase := interactor.NewReviewCommentInteractor(reviewCommentRepo)
 
+	// Cloudinaryサービスの初期化
+	cloudName := os.Getenv("CLOUDINARY_CLOUD_NAME")
+	apiKey := os.Getenv("CLOUDINARY_API_KEY")
+	apiSecret := os.Getenv("CLOUDINARY_API_SECRET")
+
+	log.Printf("Cloudinary設定 - Cloud Name: %s, API Key: %s, API Secret: %s", 
+		cloudName, 
+		func() string { if apiKey != "" { return apiKey[:8] + "..." } else { return "未設定" } }(), 
+		func() string { if apiSecret != "" { return apiSecret[:8] + "..." } else { return "未設定" } }())
+
+	var cloudinaryService *cloudinary.CloudinaryService
+	if cloudName != "" && apiKey != "" && apiSecret != "" {
+		var err error
+		cloudinaryService, err = cloudinary.NewCloudinaryService(cloudName, apiKey, apiSecret)
+		if err != nil {
+			log.Printf("Cloudinaryサービスの初期化に失敗しました: %v", err)
+			log.Println("Cloudinaryが利用できないため、ローカルファイルアップロードを使用します")
+		} else {
+			log.Println("Cloudinaryサービスが正常に初期化されました")
+		}
+	} else {
+		log.Println("Cloudinaryの環境変数が設定されていないため、ローカルファイルアップロードを使用します")
+	}
+
 	// Ginエンジンの初期化
 	engine := gin.Default()
+	
+	// 静的ファイルの配信設定
+	engine.Static("/uploads", "./uploads")
 	
 	// CORS設定
 	engine.Use(func(c *gin.Context) {
@@ -108,7 +142,7 @@ func main() {
 	})
 
 	// ルート設定
-	deliveryhttp.SetupRoutes(engine, authUseCase, sideMenuUseCase, reviewUseCase, reviewCommentUseCase, jwtSecret)
+	deliveryhttp.SetupRoutes(engine, authUseCase, sideMenuUseCase, reviewUseCase, reviewCommentUseCase, jwtSecret, cloudinaryService)
 
 	// サーバー起動
 	port := os.Getenv("PORT")
