@@ -46,6 +46,11 @@ func main() {
 		log.Fatal("データベースマイグレーションに失敗しました:", err)
 	}
 
+	// 初期データの挿入
+	if err := database.SeedData(db); err != nil {
+		log.Fatal("初期データの挿入に失敗しました:", err)
+	}
+
 	// 依存性注入
 	userRepo := database.NewUserRepository(db)
 	storeRepo := database.NewStoreRepository(db)
