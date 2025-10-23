@@ -6,7 +6,7 @@ type ReviewUseCase interface {
 	CreateReview(req *entity.CreateReviewRequest) (*entity.SideMenuReview, error)
 	CreateReviewWithUserID(req *entity.CreateReviewRequest, userID uint) (*entity.SideMenuReview, error)
 	GetReviewByID(id uint) (*entity.SideMenuReview, error)
-	GetReviewsBySideMenuID(sideMenuID uint) ([]*entity.SideMenuReview, error)
+	GetReviewsByStoreName(storeName string) ([]*entity.SideMenuReview, error)
 	GetReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error)
 	GetAllReviews() ([]*entity.SideMenuReview, error)
 	CreateReviewImage(req *entity.CreateReviewImageRequest) (*entity.SideMenuReviewImage, error)

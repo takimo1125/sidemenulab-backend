@@ -29,7 +29,7 @@ func (r *ReviewCommentRepository) GetReviewCommentByID(id uint) (*entity.ReviewC
 
 func (r *ReviewCommentRepository) GetReviewCommentsByReviewID(reviewID uint) ([]*entity.ReviewComment, error) {
 	var comments []*entity.ReviewComment
-	if err := r.db.Preload("Review").Preload("User").Where("review_id = ?", reviewID).Order("created_at ASC").Find(&comments).Error; err != nil {
+	if err := r.db.Preload("Review").Preload("User").Where("review_id = ?", reviewID).Order("created_at DESC").Find(&comments).Error; err != nil {
 		return nil, err
 	}
 	return comments, nil

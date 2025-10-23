@@ -43,8 +43,6 @@ func main() {
 	// データベースマイグレーション
 	if err := db.AutoMigrate(
 		&entity.User{},
-		&entity.Store{},
-		&entity.SideMenu{},
 		&entity.SideMenuReview{},
 		&entity.SideMenuReviewImage{},
 		&entity.SideMenuReviewLike{},
@@ -60,8 +58,6 @@ func main() {
 
 	// 依存性注入
 	userRepo := database.NewUserRepository(db)
-	storeRepo := database.NewStoreRepository(db)
-	sideMenuRepo := database.NewSideMenuRepository(db)
 	reviewRepo := database.NewReviewRepository(db)
 	reviewCommentRepo := database.NewReviewCommentRepository(db)
 	
@@ -70,7 +66,6 @@ func main() {
 		jwtSecret = "your-secret-key" // 本番環境では必ず環境変数で設定してください
 	}
 	authUseCase := interactor.NewAuthInteractor(userRepo, jwtSecret)
-	sideMenuUseCase := interactor.NewSideMenuInteractor(storeRepo, sideMenuRepo)
 	reviewUseCase := interactor.NewReviewInteractor(reviewRepo)
 	reviewCommentUseCase := interactor.NewReviewCommentInteractor(reviewCommentRepo)
 
@@ -142,7 +137,7 @@ func main() {
 	})
 
 	// ルート設定
-	deliveryhttp.SetupRoutes(engine, authUseCase, sideMenuUseCase, reviewUseCase, reviewCommentUseCase, jwtSecret, cloudinaryService)
+	deliveryhttp.SetupRoutes(engine, authUseCase, reviewUseCase, reviewCommentUseCase, jwtSecret, cloudinaryService)
 
 	// サーバー起動
 	port := os.Getenv("PORT")

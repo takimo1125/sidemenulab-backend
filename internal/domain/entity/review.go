@@ -7,19 +7,19 @@ import (
 )
 
 type SideMenuReview struct {
-	ID          uint           `gorm:"primaryKey" json:"id"`
-	SideMenuID  uint           `gorm:"not null" json:"side_menu_id"`
-	SideMenu    SideMenu       `gorm:"foreignKey:SideMenuID" json:"side_menu"`
-	UserID      uint           `gorm:"not null" json:"user_id"`
-	User        User           `gorm:"foreignKey:UserID" json:"user"`
-	Rating      int            `gorm:"not null;check:rating >= 1 AND rating <= 5" json:"rating"`
-	Title       string         `json:"title"`
-	Comment     string         `json:"comment"`
-	IsVerified  bool           `gorm:"default:false" json:"is_verified"`
-	Images      []SideMenuReviewImage `gorm:"foreignKey:ReviewID" json:"images"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
+	ID           uint           `gorm:"primaryKey" json:"id"`
+	StoreName    string         `gorm:"not null" json:"store_name"`
+	SideMenuName string         `gorm:"not null" json:"side_menu_name"`
+	UserID       uint           `gorm:"not null" json:"user_id"`
+	User         User           `gorm:"foreignKey:UserID" json:"user"`
+	Rating       int            `gorm:"not null;check:rating >= 1 AND rating <= 5" json:"rating"`
+	Title        string         `json:"title"`
+	Comment      string         `json:"comment"`
+	IsVerified   bool           `gorm:"default:false" json:"is_verified"`
+	Images       []SideMenuReviewImage `gorm:"foreignKey:ReviewID" json:"images"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+	DeletedAt    gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
 }
 
 type SideMenuReviewImage struct {
@@ -41,10 +41,11 @@ type SideMenuReviewLike struct {
 }
 
 type CreateReviewRequest struct {
-	SideMenuID uint   `json:"side_menu_id" binding:"required"`
-	Rating     int    `json:"rating" binding:"required,min=1,max=5"`
-	Title      string `json:"title"`
-	Comment    string `json:"comment"`
+	StoreName    string `json:"store_name" binding:"required"`
+	SideMenuName string `json:"side_menu_name" binding:"required"`
+	Rating       int    `json:"rating" binding:"required,min=1,max=5"`
+	Title        string `json:"title"`
+	Comment      string `json:"comment"`
 }
 
 type CreateReviewImageRequest struct {
