@@ -9,10 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, sideMenuUseCase interfaces.SideMenuUseCase, reviewUseCase interfaces.ReviewUseCase, reviewCommentUseCase interfaces.ReviewCommentUseCase, jwtSecret string, cloudinaryService *cloudinary.CloudinaryService) {
+func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, reviewUseCase interfaces.ReviewUseCase, reviewCommentUseCase interfaces.ReviewCommentUseCase, jwtSecret string, cloudinaryService *cloudinary.CloudinaryService) {
 	// ハンドラーを初期化
 	authHandler := handler.NewAuthHandler(authUseCase)
-	sideMenuHandler := handler.NewSideMenuHandler(sideMenuUseCase)
 	reviewHandler := handler.NewReviewHandler(reviewUseCase, cloudinaryService)
 	reviewCommentHandler := handler.NewReviewCommentHandler(reviewCommentUseCase)
 
@@ -30,23 +29,6 @@ func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, sideMenuUseC
 			auth.GET("/debug-token", authHandler.DebugToken)
 		}
 
-		// 店舗関連のルート
-		stores := v1.Group("/stores")
-		{
-			stores.POST("", sideMenuHandler.CreateStore)
-			stores.GET("", sideMenuHandler.GetAllStores)
-			stores.GET("/:id", sideMenuHandler.GetStoreByID)
-		}
-
-		// サイドメニュー関連のルート
-		sideMenus := v1.Group("/side-menus")
-		{
-			sideMenus.POST("", sideMenuHandler.CreateSideMenu)
-			sideMenus.GET("", sideMenuHandler.GetAllSideMenus)
-			sideMenus.GET("/:id", sideMenuHandler.GetSideMenuByID)
-			sideMenus.GET("/store/:storeId", sideMenuHandler.GetSideMenusByStoreID)
-		}
-
 		// レビュー関連のルート
 		reviews := v1.Group("/reviews")
 		{
@@ -60,7 +42,7 @@ func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, sideMenuUseC
 			// 認証が不要なルート（リスト取得のみ）
 			reviews.GET("", reviewHandler.GetAllReviews)
 			reviews.GET("/:id", reviewHandler.GetReviewByID)
-			reviews.GET("/side-menu/:sideMenuId", reviewHandler.GetReviewsBySideMenuID)
+			reviews.GET("/store/:storeName", reviewHandler.GetReviewsByStoreName)
 			reviews.GET("/:id/images", reviewHandler.GetReviewImagesByReviewID)
 			reviews.GET("/:id/likes", reviewHandler.GetReviewLikesByReviewID)
 		}

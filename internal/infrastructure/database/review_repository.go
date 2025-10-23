@@ -21,7 +21,7 @@ func (r *ReviewRepository) CreateReview(review *entity.SideMenuReview) error {
 
 func (r *ReviewRepository) GetReviewByID(id uint) (*entity.SideMenuReview, error) {
 	var review entity.SideMenuReview
-	if err := r.db.Preload("SideMenu").Preload("User").Preload("Images", func(db *gorm.DB) *gorm.DB {
+	if err := r.db.Preload("User").Preload("Images", func(db *gorm.DB) *gorm.DB {
 		return db.Order("image_order")
 	}).First(&review, id).Error; err != nil {
 		return nil, err
@@ -29,11 +29,11 @@ func (r *ReviewRepository) GetReviewByID(id uint) (*entity.SideMenuReview, error
 	return &review, nil
 }
 
-func (r *ReviewRepository) GetReviewsBySideMenuID(sideMenuID uint) ([]*entity.SideMenuReview, error) {
+func (r *ReviewRepository) GetReviewsByStoreName(storeName string) ([]*entity.SideMenuReview, error) {
 	var reviews []*entity.SideMenuReview
-	if err := r.db.Preload("SideMenu").Preload("User").Preload("Images", func(db *gorm.DB) *gorm.DB {
+	if err := r.db.Preload("User").Preload("Images", func(db *gorm.DB) *gorm.DB {
 		return db.Order("image_order")
-	}).Where("side_menu_id = ?", sideMenuID).Find(&reviews).Error; err != nil {
+	}).Where("store_name = ?", storeName).Order("created_at DESC").Find(&reviews).Error; err != nil {
 		return nil, err
 	}
 	return reviews, nil
@@ -41,9 +41,9 @@ func (r *ReviewRepository) GetReviewsBySideMenuID(sideMenuID uint) ([]*entity.Si
 
 func (r *ReviewRepository) GetReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error) {
 	var reviews []*entity.SideMenuReview
-	if err := r.db.Preload("SideMenu").Preload("User").Preload("Images", func(db *gorm.DB) *gorm.DB {
+	if err := r.db.Preload("User").Preload("Images", func(db *gorm.DB) *gorm.DB {
 		return db.Order("image_order")
-	}).Where("user_id = ?", userID).Find(&reviews).Error; err != nil {
+	}).Where("user_id = ?", userID).Order("created_at DESC").Find(&reviews).Error; err != nil {
 		return nil, err
 	}
 	return reviews, nil
@@ -51,9 +51,9 @@ func (r *ReviewRepository) GetReviewsByUserID(userID uint) ([]*entity.SideMenuRe
 
 func (r *ReviewRepository) GetAllReviews() ([]*entity.SideMenuReview, error) {
 	var reviews []*entity.SideMenuReview
-	if err := r.db.Preload("SideMenu").Preload("User").Preload("Images", func(db *gorm.DB) *gorm.DB {
+	if err := r.db.Preload("User").Preload("Images", func(db *gorm.DB) *gorm.DB {
 		return db.Order("image_order")
-	}).Find(&reviews).Error; err != nil {
+	}).Order("created_at DESC").Find(&reviews).Error; err != nil {
 		return nil, err
 	}
 	return reviews, nil

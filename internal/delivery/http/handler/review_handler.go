@@ -72,16 +72,15 @@ func (h *ReviewHandler) GetReviewByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": review})
 }
 
-// GetReviewsBySideMenuID サイドメニュー別レビュー一覧取得
-func (h *ReviewHandler) GetReviewsBySideMenuID(c *gin.Context) {
-	sideMenuIDStr := c.Param("sideMenuId")
-	sideMenuID, err := strconv.ParseUint(sideMenuIDStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なサイドメニューIDです"})
+// GetReviewsByStoreName 店舗別レビュー一覧取得
+func (h *ReviewHandler) GetReviewsByStoreName(c *gin.Context) {
+	storeName := c.Param("storeName")
+	if storeName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "店舗名が指定されていません"})
 		return
 	}
 
-	reviews, err := h.reviewUseCase.GetReviewsBySideMenuID(uint(sideMenuID))
+	reviews, err := h.reviewUseCase.GetReviewsByStoreName(storeName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

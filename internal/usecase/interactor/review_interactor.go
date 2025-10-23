@@ -24,12 +24,13 @@ func (i *ReviewInteractor) CreateReview(req *entity.CreateReviewRequest) (*entit
 	userID := uint(1)
 
 	review := &entity.SideMenuReview{
-		SideMenuID: req.SideMenuID,
-		UserID:     userID,
-		Rating:     req.Rating,
-		Title:      req.Title,
-		Comment:    req.Comment,
-		IsVerified: false, // デフォルトで未確認
+		StoreName:    req.StoreName,
+		SideMenuName: req.SideMenuName,
+		UserID:       userID,
+		Rating:       req.Rating,
+		Title:        req.Title,
+		Comment:      req.Comment,
+		IsVerified:   false, // デフォルトで未確認
 	}
 
 	if err := i.reviewRepo.CreateReview(review); err != nil {
@@ -47,12 +48,13 @@ func (i *ReviewInteractor) CreateReview(req *entity.CreateReviewRequest) (*entit
 
 func (i *ReviewInteractor) CreateReviewWithUserID(req *entity.CreateReviewRequest, userID uint) (*entity.SideMenuReview, error) {
 	review := &entity.SideMenuReview{
-		SideMenuID: req.SideMenuID,
-		UserID:     userID,
-		Rating:     req.Rating,
-		Title:      req.Title,
-		Comment:    req.Comment,
-		IsVerified: false, // デフォルトで未確認
+		StoreName:    req.StoreName,
+		SideMenuName: req.SideMenuName,
+		UserID:       userID,
+		Rating:       req.Rating,
+		Title:        req.Title,
+		Comment:      req.Comment,
+		IsVerified:   false, // デフォルトで未確認
 	}
 
 	if err := i.reviewRepo.CreateReview(review); err != nil {
@@ -76,10 +78,10 @@ func (i *ReviewInteractor) GetReviewByID(id uint) (*entity.SideMenuReview, error
 	return review, nil
 }
 
-func (i *ReviewInteractor) GetReviewsBySideMenuID(sideMenuID uint) ([]*entity.SideMenuReview, error) {
-	reviews, err := i.reviewRepo.GetReviewsBySideMenuID(sideMenuID)
+func (i *ReviewInteractor) GetReviewsByStoreName(storeName string) ([]*entity.SideMenuReview, error) {
+	reviews, err := i.reviewRepo.GetReviewsByStoreName(storeName)
 	if err != nil {
-		return nil, fmt.Errorf("サイドメニューのレビュー一覧の取得に失敗しました: %w", err)
+		return nil, fmt.Errorf("店舗のレビュー一覧の取得に失敗しました: %w", err)
 	}
 	return reviews, nil
 }
