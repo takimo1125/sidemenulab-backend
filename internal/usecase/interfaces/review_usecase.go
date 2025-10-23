@@ -10,8 +10,11 @@ type ReviewUseCase interface {
 	GetReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error)
 	GetAllReviews() ([]*entity.SideMenuReview, error)
 	GetLikedReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error)
+	UpdateReview(review *entity.SideMenuReview) error
+	DeleteReview(id uint) error
 	CreateReviewImage(req *entity.CreateReviewImageRequest) (*entity.SideMenuReviewImage, error)
 	GetReviewImagesByReviewID(reviewID uint) ([]*entity.SideMenuReviewImage, error)
+	DeleteReviewImage(imageID uint) error
 	CreateReviewLike(reviewID uint, userID uint) (*entity.SideMenuReviewLike, error)
 	DeleteReviewLike(reviewID uint, userID uint) error
 	GetReviewLikesByReviewID(reviewID uint) ([]*entity.SideMenuReviewLike, error)

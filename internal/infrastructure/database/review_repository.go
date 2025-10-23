@@ -92,6 +92,10 @@ func (r *ReviewRepository) GetReviewImagesByReviewID(reviewID uint) ([]*entity.S
 	return images, nil
 }
 
+func (r *ReviewRepository) DeleteReviewImage(imageID uint) error {
+	return r.db.Delete(&entity.SideMenuReviewImage{}, imageID).Error
+}
+
 func (r *ReviewRepository) CreateReviewLike(like *entity.SideMenuReviewLike) error {
 	return r.db.Create(like).Error
 }

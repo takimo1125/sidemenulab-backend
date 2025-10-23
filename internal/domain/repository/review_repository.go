@@ -13,6 +13,7 @@ type ReviewRepository interface {
 	DeleteReview(id uint) error
 	CreateReviewImage(image *entity.SideMenuReviewImage) error
 	GetReviewImagesByReviewID(reviewID uint) ([]*entity.SideMenuReviewImage, error)
+	DeleteReviewImage(imageID uint) error
 	CreateReviewLike(like *entity.SideMenuReviewLike) error
 	DeleteReviewLike(reviewID uint, userID uint) error
 	GetReviewLikesByReviewID(reviewID uint) ([]*entity.SideMenuReviewLike, error)
