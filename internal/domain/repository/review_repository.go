@@ -8,6 +8,7 @@ type ReviewRepository interface {
 	GetReviewsByStoreName(storeName string) ([]*entity.SideMenuReview, error)
 	GetReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error)
 	GetAllReviews() ([]*entity.SideMenuReview, error)
+	GetLikedReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error)
 	UpdateReview(review *entity.SideMenuReview) error
 	DeleteReview(id uint) error
 	CreateReviewImage(image *entity.SideMenuReviewImage) error

@@ -102,6 +102,14 @@ func (i *ReviewInteractor) GetAllReviews() ([]*entity.SideMenuReview, error) {
 	return reviews, nil
 }
 
+func (i *ReviewInteractor) GetLikedReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error) {
+	reviews, err := i.reviewRepo.GetLikedReviewsByUserID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("ユーザーがいいねしたレビュー一覧の取得に失敗しました: %w", err)
+	}
+	return reviews, nil
+}
+
 func (i *ReviewInteractor) CreateReviewImage(req *entity.CreateReviewImageRequest) (*entity.SideMenuReviewImage, error) {
 	image := &entity.SideMenuReviewImage{
 		ReviewID:   req.ReviewID,

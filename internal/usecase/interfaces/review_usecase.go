@@ -9,6 +9,7 @@ type ReviewUseCase interface {
 	GetReviewsByStoreName(storeName string) ([]*entity.SideMenuReview, error)
 	GetReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error)
 	GetAllReviews() ([]*entity.SideMenuReview, error)
+	GetLikedReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error)
 	CreateReviewImage(req *entity.CreateReviewImageRequest) (*entity.SideMenuReviewImage, error)
 	GetReviewImagesByReviewID(reviewID uint) ([]*entity.SideMenuReviewImage, error)
 	CreateReviewLike(reviewID uint, userID uint) (*entity.SideMenuReviewLike, error)

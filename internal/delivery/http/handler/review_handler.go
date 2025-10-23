@@ -89,6 +89,24 @@ func (h *ReviewHandler) GetReviewsByStoreName(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
 
+// GetLikedReviewsByUserID ユーザーがいいねしたレビュー一覧取得
+func (h *ReviewHandler) GetLikedReviewsByUserID(c *gin.Context) {
+	// 認証されたユーザーIDを取得
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証情報が取得できません"})
+		return
+	}
+
+	reviews, err := h.reviewUseCase.GetLikedReviewsByUserID(userID.(uint))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": reviews})
+}
+
 // GetAllReviews レビュー一覧取得
 func (h *ReviewHandler) GetAllReviews(c *gin.Context) {
 	reviews, err := h.reviewUseCase.GetAllReviews()

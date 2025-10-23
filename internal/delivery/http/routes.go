@@ -38,6 +38,7 @@ func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, reviewUseCas
 			reviews.POST("/:id/upload-images", authMiddleware, reviewHandler.UploadReviewImages)
 			reviews.POST("/:id/like", authMiddleware, reviewHandler.CreateReviewLike)
 			reviews.DELETE("/:id/like", authMiddleware, reviewHandler.DeleteReviewLike)
+			reviews.GET("/liked", authMiddleware, reviewHandler.GetLikedReviewsByUserID)
 
 			// 認証が不要なルート（リスト取得のみ）
 			reviews.GET("", reviewHandler.GetAllReviews)
