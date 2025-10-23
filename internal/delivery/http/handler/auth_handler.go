@@ -1,12 +1,15 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"sidemenulab-backend/internal/domain/entity"
 	"sidemenulab-backend/internal/usecase/interfaces"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type AuthHandler struct {
@@ -67,4 +70,38 @@ func (h *AuthHandler) SignIn(c *gin.Context) {
 		"message": "ログインに成功しました",
 		"data":    response,
 	})
+}
+
+// DebugToken JWTトークンのデバッグ用エンドポイント
+func (h *AuthHandler) DebugToken(c *gin.Context) {
+	// Authorizationヘッダーからトークンを取得
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "認証トークンが提供されていません"})
+		return
+	}
+
+	// "Bearer "プレフィックスを除去
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	if tokenString == authHeader {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効な認証ヘッダー形式です"})
+		return
+	}
+
+	// JWTトークンを解析（署名検証なし）
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "トークンの解析に失敗しました"})
+		return
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		c.JSON(http.StatusOK, gin.H{
+			"claims": claims,
+			"user_id_type": fmt.Sprintf("%T", claims["user_id"]),
+			"user_id_value": claims["user_id"],
+		})
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "クレームの取得に失敗しました"})
+	}
 }

@@ -3,16 +3,17 @@ package http
 import (
 	"sidemenulab-backend/internal/delivery/http/handler"
 	"sidemenulab-backend/internal/delivery/http/middleware"
+	"sidemenulab-backend/internal/infrastructure/cloudinary"
 	"sidemenulab-backend/internal/usecase/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, sideMenuUseCase interfaces.SideMenuUseCase, reviewUseCase interfaces.ReviewUseCase, reviewCommentUseCase interfaces.ReviewCommentUseCase, jwtSecret string) {
+func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, sideMenuUseCase interfaces.SideMenuUseCase, reviewUseCase interfaces.ReviewUseCase, reviewCommentUseCase interfaces.ReviewCommentUseCase, jwtSecret string, cloudinaryService *cloudinary.CloudinaryService) {
 	// ハンドラーを初期化
 	authHandler := handler.NewAuthHandler(authUseCase)
 	sideMenuHandler := handler.NewSideMenuHandler(sideMenuUseCase)
-	reviewHandler := handler.NewReviewHandler(reviewUseCase)
+	reviewHandler := handler.NewReviewHandler(reviewUseCase, cloudinaryService)
 	reviewCommentHandler := handler.NewReviewCommentHandler(reviewCommentUseCase)
 
 	// 認証ミドルウェアを初期化
@@ -26,6 +27,7 @@ func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, sideMenuUseC
 		{
 			auth.POST("/signup", authHandler.SignUp)
 			auth.POST("/signin", authHandler.SignIn)
+			auth.GET("/debug-token", authHandler.DebugToken)
 		}
 
 		// 店舗関連のルート
@@ -51,6 +53,7 @@ func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, sideMenuUseC
 			// 認証が必要なルート
 			reviews.POST("", authMiddleware, reviewHandler.CreateReview)
 			reviews.POST("/:id/images", authMiddleware, reviewHandler.CreateReviewImage)
+			reviews.POST("/:id/upload-images", authMiddleware, reviewHandler.UploadReviewImages)
 			reviews.POST("/:id/like", authMiddleware, reviewHandler.CreateReviewLike)
 			reviews.DELETE("/:id/like", authMiddleware, reviewHandler.DeleteReviewLike)
 
