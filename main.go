@@ -41,6 +41,7 @@ func main() {
 		&entity.SideMenuReview{},
 		&entity.SideMenuReviewImage{},
 		&entity.SideMenuReviewLike{},
+		&entity.ReviewComment{},
 	); err != nil {
 		log.Fatal("データベースマイグレーションに失敗しました:", err)
 	}
@@ -50,6 +51,7 @@ func main() {
 	storeRepo := database.NewStoreRepository(db)
 	sideMenuRepo := database.NewSideMenuRepository(db)
 	reviewRepo := database.NewReviewRepository(db)
+	reviewCommentRepo := database.NewReviewCommentRepository(db)
 	
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
@@ -58,6 +60,7 @@ func main() {
 	authUseCase := interactor.NewAuthInteractor(userRepo, jwtSecret)
 	sideMenuUseCase := interactor.NewSideMenuInteractor(storeRepo, sideMenuRepo)
 	reviewUseCase := interactor.NewReviewInteractor(reviewRepo)
+	reviewCommentUseCase := interactor.NewReviewCommentInteractor(reviewCommentRepo)
 
 	// Ginエンジンの初期化
 	engine := gin.Default()
@@ -100,7 +103,7 @@ func main() {
 	})
 
 	// ルート設定
-	deliveryhttp.SetupRoutes(engine, authUseCase, sideMenuUseCase, reviewUseCase, jwtSecret)
+	deliveryhttp.SetupRoutes(engine, authUseCase, sideMenuUseCase, reviewUseCase, reviewCommentUseCase, jwtSecret)
 
 	// サーバー起動
 	port := os.Getenv("PORT")

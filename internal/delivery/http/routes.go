@@ -8,11 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, sideMenuUseCase interfaces.SideMenuUseCase, reviewUseCase interfaces.ReviewUseCase, jwtSecret string) {
+func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, sideMenuUseCase interfaces.SideMenuUseCase, reviewUseCase interfaces.ReviewUseCase, reviewCommentUseCase interfaces.ReviewCommentUseCase, jwtSecret string) {
 	// ハンドラーを初期化
 	authHandler := handler.NewAuthHandler(authUseCase)
 	sideMenuHandler := handler.NewSideMenuHandler(sideMenuUseCase)
 	reviewHandler := handler.NewReviewHandler(reviewUseCase)
+	reviewCommentHandler := handler.NewReviewCommentHandler(reviewCommentUseCase)
 
 	// 認証ミドルウェアを初期化
 	authMiddleware := middleware.AuthMiddleware(jwtSecret)
@@ -59,6 +60,21 @@ func SetupRoutes(r *gin.Engine, authUseCase interfaces.AuthUseCase, sideMenuUseC
 			reviews.GET("/side-menu/:sideMenuId", reviewHandler.GetReviewsBySideMenuID)
 			reviews.GET("/:id/images", reviewHandler.GetReviewImagesByReviewID)
 			reviews.GET("/:id/likes", reviewHandler.GetReviewLikesByReviewID)
+		}
+
+		// レビューコメント関連のルート
+		reviewComments := v1.Group("/review-comments")
+		{
+			// 認証が必要なルート
+			reviewComments.POST("", authMiddleware, reviewCommentHandler.CreateReviewComment)
+			reviewComments.PUT("/:id", authMiddleware, reviewCommentHandler.UpdateReviewComment)
+			reviewComments.DELETE("/:id", authMiddleware, reviewCommentHandler.DeleteReviewComment)
+
+			// 認証が不要なルート（リスト取得のみ）
+			reviewComments.GET("", reviewCommentHandler.GetAllReviewComments)
+			reviewComments.GET("/:id", reviewCommentHandler.GetReviewCommentByID)
+			reviewComments.GET("/review/:reviewId", reviewCommentHandler.GetReviewCommentsByReviewID)
+			reviewComments.GET("/user/:userId", reviewCommentHandler.GetReviewCommentsByUserID)
 		}
 	}
 }
