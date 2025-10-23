@@ -59,6 +59,19 @@ func (r *ReviewRepository) GetAllReviews() ([]*entity.SideMenuReview, error) {
 	return reviews, nil
 }
 
+func (r *ReviewRepository) GetLikedReviewsByUserID(userID uint) ([]*entity.SideMenuReview, error) {
+	var reviews []*entity.SideMenuReview
+	if err := r.db.Preload("User").Preload("Images", func(db *gorm.DB) *gorm.DB {
+		return db.Order("image_order")
+	}).Joins("JOIN side_menu_review_likes ON side_menu_reviews.id = side_menu_review_likes.review_id").
+		Where("side_menu_review_likes.user_id = ?", userID).
+		Order("side_menu_review_likes.created_at DESC").
+		Find(&reviews).Error; err != nil {
+		return nil, err
+	}
+	return reviews, nil
+}
+
 func (r *ReviewRepository) UpdateReview(review *entity.SideMenuReview) error {
 	return r.db.Save(review).Error
 }
