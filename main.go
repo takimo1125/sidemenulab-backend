@@ -18,9 +18,16 @@ import (
 )
 
 func main() {
-	// .envファイルを読み込み
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using system environment variables")
+	// 環境に応じて.envファイルを読み込み
+	env := os.Getenv("GIN_MODE")
+	if env == "" || env == "debug" {
+		// ローカル開発環境では.env.localを優先的に読み込み
+		if err := godotenv.Load(".env.local"); err != nil {
+			// .env.localがない場合は.envを読み込む
+			if err := godotenv.Load(); err != nil {
+				log.Println("No .env file found, using system environment variables")
+			}
+		}
 	}
 
 	// PostgreSQLデータベース接続

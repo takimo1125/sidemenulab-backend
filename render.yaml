@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: sidemenulab-backend
+    env: go
+    region: ohio
+    plan: free
+    buildCommand: go build -o main .
+    startCommand: ./main
+    envVars:
+      - key: GIN_MODE
+        value: release
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+        generateValue: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: PORT
+        value: 10000
+
+databases:
+  - name: sidemenulab-db
+    plan: free
+    databaseName: sidemenulab
+    user: sidemenulab_user
