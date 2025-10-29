@@ -1,0 +1,36 @@
+# ビルドステージ
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /app
+
+# 依存関係をコピー
+COPY go.mod go.sum ./
+RUN go mod download
+
+# ソースコードをコピー
+COPY . .
+
+# バイナリをビルド
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+
+# ランタイムステージ
+FROM alpine:latest
+
+# タイムゾーンデータをインストール
+RUN apk --no-cache add ca-certificates tzdata
+ENV TZ=Asia/Tokyo
+
+WORKDIR /root/
+
+# ビルドしたバイナリをコピー
+COPY --from=builder /app/main .
+
+# 実行権限を付与
+RUN chmod +x main
+
+# ポートを公開
+EXPOSE 10000
+
+# アプリケーションを実行
+CMD ["./main"]
+
