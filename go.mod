@@ -1,6 +1,6 @@
 module sidemenulab-backend
 
-go 1.25.2
+go 1.24.0
 
 require (
 	github.com/cloudinary/cloudinary-go/v2 v2.13.0
